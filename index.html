@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+    <!-- Fuentes elegantes de Google Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+
+    <!-- Hoja de estilos -->
+
+    <link rel="stylesheet" href="barberia.css">
+
+
+
+    <title>Barbería Isa</title>
+
+</head>
+
+
+
+<body>
+
+
+
+    <!-- =========================================================
+
+         LOGIN
+
+         Esta es la única pantalla visible antes de iniciar sesión.
+
+         ========================================================= -->
+
+    <section id="login" class="pantalla-login">
+
+
+
+        <div class="login-box">
+
+
+
+            <!-- Nombre de la barbería -->
+
+            <div class="login-logo">BARBERÍA ISA</div>
+
+
+
+            <h1>Bienvenido</h1>
+
+            <p>Inicia sesión para entrar a tu cuenta.</p>
+
+
+
+            <!-- Formulario utilizado por barber.js -->
+
+            <form id="loginForm">
+
+
+
+                <label for="loginCorreo">
+
+                    Correo electrónico
+
+                </label>
+
+
+
+                <input
+
+                    type="email"
+
+                    id="loginCorreo"
+
+                    placeholder="correo@ejemplo.com"
+
+                    autocomplete="email"
+
+                    required
+
+                >
+
+
+
+                <label for="loginPassword">
+
+                    Contraseña
+
+                </label>
+
+
+
+                <input
+
+                    type="password"
+
+                    id="loginPassword"
+
+                    placeholder="Contraseña"
+
+                    autocomplete="current-password"
+
+                    required
+
+                >
+
+
+
+                <button
+
+                    type="submit"
+
+                    class="btn-principal">
+
+                    Iniciar sesión
+
+                </button>
+
+
+
+                <!-- Mensajes de error del login -->
+
+                <p id="mensajeLogin" class="mensaje-login"></p>
+
+
+
+            </form>
+
+
+
+            <!-- Credenciales de demostración -->
+
+            <div class="credenciales">
+
+
+
+                <p><strong>Usuario de prueba</strong></p>
+
+                <p>usuario@barberiaisa.com</p>
+
+                <p>Contraseña: 1234</p>
+
+
+
+                <p><strong>Administrador</strong></p>
+
+                <p>admin@barberiaisa.com</p>
+
+                <p>Contraseña: admin123</p>
+
+
+
+            </div>
+
+
+
+        </div>
+
+    </section>
+
+
+
+
+
+    <!-- =========================================================
+
+         APLICACIÓN
+
+         IMPORTANTE:
+
+         Esta aplicación empieza oculta.
+
+         barber.js decide qué interfaz mostrar.
+
+         ========================================================= -->
+
+    <div id="aplicacion" style="display:none;">
+
+
+
+
+
+        <!-- =====================================================
+
+             =====================================================
+
+             INTERFAZ DEL USUARIO
+
+             =====================================================
+
+             Todo este bloque se oculta cuando entra el admin.
+
+             ===================================================== -->
+
+        <div id="interfazUsuario" style="display:none;">
+
+
+
+            <!-- Menú exclusivo para usuarios -->
+
+            <header class="header">
+
+
+
+                <div class="logo">
+
+                    <h1>Barbería <span>Isa</span></h1>
+
+                </div>
+
+
+
+                <!-- Botón del menú móvil -->
+
+                <button
+
+                    id="menuToggle"
+
+                    class="menu-toggle"
+
+                    type="button">
+
+                    MENÚ
+
+                </button>
+
+
+
+                <nav id="menu">
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="inicio"
+
+                        type="button">
+
+                        Inicio
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="servicios"
+
+                        type="button">
+
+                        Servicios
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="barberos"
+
+                        type="button">
+
+                        Barberos
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="reservar"
+
+                        type="button">
+
+                        Reservar
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="misCitas"
+
+                        type="button">
+
+                        Mis citas
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="contacto"
+
+                        type="button">
+
+                        Contacto
+
+                    </button>
+
+
+
+                    <!-- Cierre de sesión del usuario -->
+
+                    <button
+
+                        id="cerrarSesion"
+
+                        class="nav-btn cerrar"
+
+                        type="button">
+
+                        Cerrar sesión
+
+                    </button>
+
+
+
+                </nav>
+
+            </header>
+
+
+
+
+
+            <main>
+
+
+
+                <!-- =================================================
+
+                     INICIO DEL USUARIO
+
+                     ================================================= -->
+
+                <section
+
+                    id="inicio"
+
+                    class="pagina activa">
+
+
+
+                    <div class="hero">
+
+
+
+                        <div class="hero-text">
+
+
+
+                            <p class="etiqueta">
+
+                                BARBERÍA ISA
+
+                            </p>
+
+
+
+                            <h2>
+
+                                Tu estilo.
+
+                                <span>Tu esencia.</span>
+
+                            </h2>
+
+
+
+                            <p class="descripcion">
+
+                                Descubre cortes modernos, clásicos y
+
+                                servicios profesionales diseñados para ti.
+
+                            </p>
+
+
+
+                            <button
+
+                                class="btn-principal"
+
+                                data-pagina="servicios"
+
+                                type="button">
+
+                                Reservar mi cita
+
+                            </button>
+
+
+
+                        </div>
+
+
+
+
+
+                        <div class="hero-image">
+
+
+
+                            <img
+
+                                src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=80"
+
+                                alt="Interior de Barbería Isa">
+
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Beneficios -->
+
+                    <div class="beneficios">
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Profesionales</h3>
+
+                            <p>
+
+                                Barberos especializados en diferentes estilos.
+
+                            </p>
+
+                        </article>
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Calidad</h3>
+
+                            <p>
+
+                                Atención cuidada en cada detalle.
+
+                            </p>
+
+                        </article>
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Reserva fácil</h3>
+
+                            <p>
+
+                                Agenda tu cita en pocos pasos.
+
+                            </p>
+
+                        </article>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Promoción -->
+
+                    <div class="banner">
+
+
+
+                        <div>
+
+                            <p class="etiqueta">
+
+                                PROMOCIÓN
+
+                            </p>
+
+
+
+                            <h2>
+
+                                Tu décimo corte es gratis
+
+                            </h2>
+
+
+
+                            <p>
+
+                                Acumula tus visitas y recibe una recompensa.
+
+                            </p>
+
+                        </div>
+
+
+
+                        <button
+
+                            class="btn-dorado"
+
+                            data-pagina="servicios"
+
+                            type="button">
+
+                            Ver servicios
+
+                        </button>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     SERVICIOS DEL USUARIO
+
+                     ================================================= -->
+
+                <section
+
+                    id="servicios"
+
+                    class="pagina">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            NUESTROS SERVICIOS
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Elige tu <span>servicio</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Selecciona el servicio que deseas reservar.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- El JS puede agregar servicios nuevos aquí -->
+
+                    <div
+
+                        id="serviciosUsuario"
+
+                        class="servicios-grid">
+
+
+
+                        <!-- Servicio inicial -->
+
+                        <article class="servicio-card">
+
+
+
+                            <img
+
+                                src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=700&q=80"
+
+                                alt="Corte tradicional">
+
+
+
+                            <div class="servicio-info">
+
+
+
+                                <p class="categoria">
+
+                                    CORTE
+
+                                </p>
+
+
+
+                                <h3>
+
+                                    Corte tradicional
+
+                                </h3>
+
+
+
+                                <p>
+
+                                    Corte clásico, moderno y personalizado.
+
+                                </p>
+
+
+
+                                <div class="servicio-bottom">
+
+
+
+                                    <strong>
+
+                                        $150 MXN
+
+                                    </strong>
+
+
+
+                                    <button
+
+                                        class="elegir-servicio"
+
+                                        data-servicio="Corte tradicional"
+
+                                        data-precio="150"
+
+                                        type="button">
+
+                                        Elegir
+
+                                    </button>
+
+
+
+                                </div>
+
+
+
+                            </div>
+
+                        </article>
+
+
+
+
+
+                        <!-- Servicio inicial 2 -->
+
+                        <article class="servicio-card">
+
+
+
+                            <img
+
+                                src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=700&q=80"
+
+                                alt="Corte y barba">
+
+
+
+                            <div class="servicio-info">
+
+
+
+                                <p class="categoria">
+
+                                    COMBO
+
+                                </p>
+
+
+
+                                <h3>
+
+                                    Corte + barba
+
+                                </h3>
+
+
+
+                                <p>
+
+                                    Corte de cabello acompañado de arreglo de barba.
+
+                                </p>
+
+
+
+                                <div class="servicio-bottom">
+
+
+
+                                    <strong>
+
+                                        $220 MXN
+
+                                    </strong>
+
+
+
+                                    <button
+
+                                        class="elegir-servicio"
+
+                                        data-servicio="Corte + barba"
+
+                                        data-precio="220"
+
+                                        type="button">
+
+                                        Elegir
+
+                                    </button>
+
+
+
+                                </div>
+
+
+
+                            </div>
+
+                        </article>
+
+
+
+
+
+                        <!-- Servicio inicial 3 -->
+
+                        <article class="servicio-card">
+
+
+
+                            <img
+
+                                src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=700&q=80"
+
+                                alt="Arreglo de barba">
+
+
+
+                            <div class="servicio-info">
+
+
+
+                                <p class="categoria">
+
+                                    BARBA
+
+                                </p>
+
+
+
+                                <h3>
+
+                                    Arreglo de barba
+
+                                </h3>
+
+
+
+                                <p>
+
+                                    Perfilado y cuidado de barba profesional.
+
+                                </p>
+
+
+
+                                <div class="servicio-bottom">
+
+
+
+                                    <strong>
+
+                                        $100 MXN
+
+                                    </strong>
+
+
+
+                                    <button
+
+                                        class="elegir-servicio"
+
+                                        data-servicio="Arreglo de barba"
+
+                                        data-precio="100"
+
+                                        type="button">
+
+                                        Elegir
+
+                                    </button>
+
+
+
+                                </div>
+
+
+
+                            </div>
+
+                        </article>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     BARBEROS DEL USUARIO
+
+                     ================================================= -->
+
+                <section
+
+                    id="barberos"
+
+                    class="pagina">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            NUESTRO EQUIPO
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Conoce a nuestros <span>barberos</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Selecciona un barbero para tu próxima cita.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+                    <!-- barber.js genera las tarjetas -->
+
+                    <div
+
+                        id="barberosUsuario"
+
+                        class="servicios-grid">
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     RESERVAR
+
+                     ================================================= -->
+
+                <section
+
+                    id="reservar"
+
+                    class="pagina">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            RESERVACIÓN
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Agenda tu <span>cita</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Selecciona fecha y hora para tu cita.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="reserva-contenedor">
+
+
+
+                        <!-- Resumen de selección -->
+
+                        <div class="resumen-reserva">
+
+
+
+                            <h3>
+
+                                Resumen de tu cita
+
+                            </h3>
+
+
+
+                            <p>
+
+                                <strong>Servicio:</strong>
+
+                                <span id="resumenServicio">
+
+                                    No seleccionado
+
+                                </span>
+
+                            </p>
+
+
+
+                            <p>
+
+                                <strong>Precio:</strong>
+
+                                $<span id="resumenPrecio">0</span> MXN
+
+                            </p>
+
+
+
+                            <p>
+
+                                <strong>Barbero:</strong>
+
+                                <span id="resumenBarbero">
+
+                                    No seleccionado
+
+                                </span>
+
+                            </p>
+
+
+
+                        </div>
+
+
+
+
+
+                        <!-- Formulario de reserva -->
+
+                        <form
+
+                            id="reservaForm"
+
+                            class="formulario formulario-reserva">
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="fechaCita">
+
+                                    Fecha de la cita
+
+                                </label>
+
+
+
+                                <!-- El navegador muestra un calendario -->
+
+                                <input
+
+                                    type="date"
+
+                                    id="fechaCita"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="horaCita">
+
+                                    Hora de la cita
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="time"
+
+                                    id="horaCita"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <button
+
+                                type="submit"
+
+                                class="btn-principal">
+
+                                Confirmar cita
+
+                            </button>
+
+
+
+                        </form>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     MIS CITAS
+
+                     ================================================= -->
+
+                <section
+
+                    id="misCitas"
+
+                    class="pagina">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            MIS RESERVACIONES
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Mis <span>citas</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Aquí puedes consultar tus reservaciones.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+                    <div id="listaCitasUsuario">
+
+                        <!-- Las citas se crean con JavaScript -->
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     CONTACTO
+
+                     ================================================= -->
+
+                <section
+
+                    id="contacto"
+
+                    class="pagina">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            CONTACTO
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Estamos para <span>ayudarte</span>
+
+                        </h2>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="contacto-contenedor">
+
+
+
+                        <div class="contacto-info">
+
+
+
+                            <h3>
+
+                                Barbería Isa
+
+                            </h3>
+
+
+
+                            <p>
+
+                                Atención profesional y personalizada.
+
+                            </p>
+
+
+
+                            <p>
+
+                                Horario: lunes a sábado, 9:00 a 20:00.
+
+                            </p>
+
+
+
+                        </div>
+
+
+
+
+
+                        <!-- Formulario de contacto -->
+
+                        <form
+
+                            id="contactoForm"
+
+                            class="formulario">
+
+
+
+                            <label for="nombreContacto">
+
+                                Nombre
+
+                            </label>
+
+
+
+                            <input
+
+                                type="text"
+
+                                id="nombreContacto"
+
+                                required>
+
+
+
+
+
+                            <label for="correoContacto">
+
+                                Correo electrónico
+
+                            </label>
+
+
+
+                            <input
+
+                                type="email"
+
+                                id="correoContacto"
+
+                                required>
+
+
+
+
+
+                            <label for="mensajeContacto">
+
+                                Mensaje
+
+                            </label>
+
+
+
+                            <textarea
+
+                                id="mensajeContacto"
+
+                                rows="5"
+
+                                required></textarea>
+
+
+
+
+
+                            <button
+
+                                type="submit"
+
+                                class="btn-principal">
+
+                                Enviar mensaje
+
+                            </button>
+
+
+
+                        </form>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+            </main>
+
+
+
+
+
+            <!-- Pie de página del usuario -->
+
+            <footer>
+
+                <p>Barbería Isa</p>
+
+                <p>Todos los derechos reservados.</p>
+
+            </footer>
+
+
+
+        </div>
+
+        <!-- FIN DE INTERFAZ USUARIO -->
+
+
+
+
+
+        <!-- =====================================================
+
+             =====================================================
+
+             INTERFAZ DEL ADMINISTRADOR
+
+             =====================================================
+
+             ESTA ES OTRA INTERFAZ COMPLETAMENTE SEPARADA.
+
+             No contiene Inicio, Servicios de usuario, Reservar,
+
+             Mis citas ni Contacto.
+
+             ===================================================== -->
+
+        <div
+
+            id="interfazAdmin"
+
+            style="display:none;">
+
+
+
+            <!-- Encabezado exclusivo del administrador -->
+
+            <header class="header admin-header">
+
+
+
+                <div class="logo">
+
+
+
+                    <h1>
+
+                        Barbería <span>Isa</span>
+
+                    </h1>
+
+
+
+                    <small>
+
+                        PANEL ADMINISTRATIVO
+
+                    </small>
+
+
+
+                </div>
+
+
+
+
+
+                <!-- Menú exclusivo del admin -->
+
+                <nav id="menuAdmin">
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="admin"
+
+                        type="button">
+
+                        Panel
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="adminCitas"
+
+                        type="button">
+
+                        Citas
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="adminServicios"
+
+                        type="button">
+
+                        Servicios
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="adminBarberos"
+
+                        type="button">
+
+                        Barberos
+
+                    </button>
+
+
+
+                    <button
+
+                        class="nav-btn"
+
+                        data-pagina="adminInventario"
+
+                        type="button">
+
+                        Inventario
+
+                    </button>
+
+
+
+                    <button
+
+                        id="cerrarSesionAdmin"
+
+                        class="nav-btn cerrar"
+
+                        type="button">
+
+                        Cerrar sesión
+
+                    </button>
+
+
+
+                </nav>
+
+
+
+            </header>
+
+
+
+
+
+            <main>
+
+
+
+                <!-- =================================================
+
+                     PANEL PRINCIPAL ADMIN
+
+                     ================================================= -->
+
+                <section
+
+                    id="admin"
+
+                    class="pagina activa pagina-admin">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            ADMINISTRADOR
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Panel de <span>control</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Administra toda la barbería desde un solo lugar.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Estadísticas -->
+
+                    <div class="beneficios">
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Citas</h3>
+
+                            <p id="totalCitas">0</p>
+
+                        </article>
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Barberos</h3>
+
+                            <p id="totalBarberos">0</p>
+
+                        </article>
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Productos</h3>
+
+                            <p id="totalProductos">0</p>
+
+                        </article>
+
+
+
+                        <article class="beneficio">
+
+                            <h3>Servicios</h3>
+
+                            <p id="totalServicios">0</p>
+
+                        </article>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     CALENDARIO Y CITAS ADMIN
+
+                     ================================================= -->
+
+                <section
+
+                    id="adminCitas"
+
+                    class="pagina pagina-admin">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            ADMINISTRADOR
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Calendario de <span>citas</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Consulta y administra las reservaciones.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Calendario -->
+
+                    <div class="admin-card calendario-card">
+
+
+
+                        <div class="calendario-header">
+
+
+
+                            <button
+
+                                id="mesAnterior"
+
+                                class="admin-action"
+
+                                type="button">
+
+                                Anterior
+
+                            </button>
+
+
+
+                            <h3 id="tituloCalendario">
+
+                                Calendario
+
+                            </h3>
+
+
+
+                            <button
+
+                                id="mesSiguiente"
+
+                                class="admin-action"
+
+                                type="button">
+
+                                Siguiente
+
+                            </button>
+
+
+
+                        </div>
+
+
+
+                        <!-- barber.js construye los días -->
+
+                        <div
+
+                            id="calendarioAdmin"
+
+                            class="calendario-grid">
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Tabla de citas -->
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Lista de citas
+
+                        </h3>
+
+
+
+                        <div id="tablaCitas">
+
+                            <!-- JavaScript genera la tabla -->
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     SERVICIOS Y PRECIOS ADMIN
+
+                     ================================================= -->
+
+                <section
+
+                    id="adminServicios"
+
+                    class="pagina pagina-admin">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            ADMINISTRADOR
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Gestionar <span>servicios</span>
+
+                        </h2>
+
+
+
+                        <p>
+
+                            Agrega servicios y cambia sus precios.
+
+                        </p>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Formulario para crear servicio -->
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Agregar nuevo servicio
+
+                        </h3>
+
+
+
+                        <form
+
+                            id="agregarServicio"
+
+                            class="formulario">
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="nombreServicio">
+
+                                    Nombre del servicio
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="text"
+
+                                    id="nombreServicio"
+
+                                    placeholder="Ej. Corte premium"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="categoriaServicio">
+
+                                    Categoría
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="text"
+
+                                    id="categoriaServicio"
+
+                                    placeholder="Ej. Corte"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="precioServicio">
+
+                                    Precio en MXN
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="number"
+
+                                    id="precioServicio"
+
+                                    min="0"
+
+                                    step="1"
+
+                                    placeholder="150"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="descripcionServicio">
+
+                                    Descripción
+
+                                </label>
+
+
+
+                                <textarea
+
+                                    id="descripcionServicio"
+
+                                    rows="4"
+
+                                    placeholder="Descripción del servicio..."
+
+                                    required></textarea>
+
+
+
+                            </div>
+
+
+
+
+
+                            <button
+
+                                type="submit"
+
+                                class="btn-principal">
+
+                                Agregar servicio
+
+                            </button>
+
+
+
+                        </form>
+
+
+
+                    </div>
+
+
+
+
+
+                    <!-- Lista editable de servicios -->
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Servicios actuales
+
+                        </h3>
+
+
+
+                        <div id="listaServiciosAdmin">
+
+                            <!-- JS muestra editar precio y eliminar -->
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     BARBEROS ADMIN
+
+                     ================================================= -->
+
+                <section
+
+                    id="adminBarberos"
+
+                    class="pagina pagina-admin">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            ADMINISTRADOR
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Gestionar <span>barberos</span>
+
+                        </h2>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Agregar barbero
+
+                        </h3>
+
+
+
+                        <form
+
+                            id="agregarBarbero"
+
+                            class="formulario">
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="nombreBarbero">
+
+                                    Nombre
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="text"
+
+                                    id="nombreBarbero"
+
+                                    placeholder="Nombre del barbero"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="especialidadBarbero">
+
+                                    Especialidad
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="text"
+
+                                    id="especialidadBarbero"
+
+                                    placeholder="Ej. Fade y barba"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <button
+
+                                type="submit"
+
+                                class="btn-principal">
+
+                                Agregar barbero
+
+                            </button>
+
+
+
+                        </form>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Barberos actuales
+
+                        </h3>
+
+
+
+                        <div id="listaBarberosAdmin">
+
+                            <!-- JS genera los barberos -->
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+
+
+                <!-- =================================================
+
+                     INVENTARIO ADMIN
+
+                     ================================================= -->
+
+                <section
+
+                    id="adminInventario"
+
+                    class="pagina pagina-admin">
+
+
+
+                    <div class="titulo-seccion">
+
+
+
+                        <p class="etiqueta">
+
+                            ADMINISTRADOR
+
+                        </p>
+
+
+
+                        <h2>
+
+                            Gestionar <span>inventario</span>
+
+                        </h2>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Agregar producto
+
+                        </h3>
+
+
+
+                        <form
+
+                            id="agregarProducto"
+
+                            class="formulario">
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="nombreProducto">
+
+                                    Nombre del producto
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="text"
+
+                                    id="nombreProducto"
+
+                                    placeholder="Ej. Cera para cabello"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <div class="campo-formulario">
+
+
+
+                                <label for="cantidadProducto">
+
+                                    Cantidad
+
+                                </label>
+
+
+
+                                <input
+
+                                    type="number"
+
+                                    id="cantidadProducto"
+
+                                    min="1"
+
+                                    placeholder="10"
+
+                                    required>
+
+
+
+                            </div>
+
+
+
+
+
+                            <button
+
+                                type="submit"
+
+                                class="btn-principal">
+
+                                Agregar producto
+
+                            </button>
+
+
+
+                        </form>
+
+
+
+                    </div>
+
+
+
+
+
+                    <div class="admin-card">
+
+
+
+                        <h3>
+
+                            Inventario actual
+
+                        </h3>
+
+
+
+                        <div id="inventario">
+
+                            <!-- JS genera los productos -->
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                </section>
+
+
+
+            </main>
+
+
+
+
+
+            <!-- Pie de página exclusivo del admin -->
+
+            <footer>
+
+                <p>Barbería Isa | Panel administrativo</p>
+
+            </footer>
+
+
+
+        </div>
+
+        <!-- FIN DE INTERFAZ ADMIN -->
+
+
+
+    </div>
+
+
+
+
+
+    <!-- =========================================================
+
+         JAVASCRIPT
+
+         Se carga al final para que todos los elementos existan.
+
+         ========================================================= -->
+
+    <script src="barber.js"></script>
+
+
+
+</body>
+
+</html>
