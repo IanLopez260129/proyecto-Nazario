@@ -1,1189 +1,2032 @@
-/* =========================================================
-   VARIABLES PRINCIPALES
-   ========================================================= */
+/* ============================================================
+   BARBERÍA ISA - JAVASCRIPT
+   Este archivo controla:
+   - Inicio de sesión
+   - Separación Usuario / Administrador
+   - Servicios
+   - Barberos
+   - Reservaciones
+   - Citas
+   - Calendario
+   - Inventario
+   - Formularios
+   - Menús
+   ============================================================ */
 
-/* Guarda el tipo de usuario que inició sesión */
-let sesionActual = null;
-
-/* Guarda el servicio seleccionado */
-let servicioSeleccionado = "";
-
-/* Guarda el precio del servicio */
-let precioSeleccionado = 0;
-
-/* Guarda el barbero seleccionado */
-let barberoSeleccionado = "";
-
-/* Guarda las citas realizadas */
-let citas = [];
-
-/* Guarda los productos del inventario */
-let inventario = [
-    {
-        nombre: "Cera para cabello",
-        cantidad: 12,
-        precio: 180
-    },
-    {
-        nombre: "Shampoo profesional",
-        cantidad: 8,
-        precio: 250
-    },
-    {
-        nombre: "Aceite para barba",
-        cantidad: 15,
-        precio: 220
-    }
-];
-
-/* Guarda los barberos disponibles */
-let barberos = [
-    "Carlos",
-    "Luis",
-    "Diego"
-];
-
-
-/* =========================================================
-   CUANDO CARGA LA PÁGINA
-   ========================================================= */
-
-/* Espera hasta que todo el HTML haya sido cargado */
 document.addEventListener("DOMContentLoaded", function () {
 
-    /* Conecta el formulario de login con su función */
-    document
-        .getElementById("loginForm")
-        .addEventListener("submit", iniciarSesion);
-
-    /* Conecta el botón de cerrar sesión */
-    document
-        .getElementById("cerrarSesion")
-        .addEventListener("click", cerrarSesion);
-
-    /* Conecta todos los botones del menú */
-    document
-        .querySelectorAll(".nav-btn[data-pagina]")
-        .forEach(function (boton) {
-
-            /* Cuando se pulsa un botón se cambia de sección */
-            boton.addEventListener("click", function () {
-
-                mostrarPagina(
-                    boton.dataset.pagina,
-                    boton
-                );
-
-            });
-
-        });
-
-
-    /* Conecta los botones principales que cambian de sección */
-    document
-        .querySelectorAll("[data-pagina]")
-        .forEach(function (boton) {
-
-            /* Evita conectar dos veces los botones del menú */
-            if (!boton.classList.contains("nav-btn")) {
-
-                boton.addEventListener("click", function () {
-
-                    mostrarPagina(
-                        boton.dataset.pagina
-                    );
-
-                });
-
-            }
-
-        });
-
-
-    /* Conecta los botones de servicios */
-    document
-        .querySelectorAll(".elegir-servicio")
-        .forEach(function (boton) {
-
-            /* Obtiene el nombre y precio guardados en HTML */
-            boton.addEventListener("click", function () {
-
-                seleccionarServicio(
-                    boton.dataset.servicio,
-                    Number(boton.dataset.precio)
-                );
-
-            });
-
-        });
-
-
-    /* Conecta el formulario de reserva */
-    document
-        .getElementById("reservaForm")
-        .addEventListener(
-            "submit",
-            crearCita
-        );
-
-
-    /* Conecta el formulario de contacto */
-    document
-        .getElementById("contactoForm")
-        .addEventListener(
-            "submit",
-            enviarMensaje
-        );
-
-
-    /* Conecta el menú de celular */
-    document
-        .getElementById("menuToggle")
-        .addEventListener(
-            "click",
-            alternarMenu
-        );
-
-
-    /* Conecta el botón para agregar productos */
-    document
-        .getElementById("agregarProducto")
-        .addEventListener(
-            "click",
-            agregarProducto
-        );
-
-
-    /* Conecta el botón para agregar barberos */
-    document
-        .getElementById("agregarBarbero")
-        .addEventListener(
-            "click",
-            agregarBarbero
-        );
-
-
-    /* Prepara la fecha mínima para reservar */
-    establecerFechaMinima();
-
-});
-
-
-/* =========================================================
-   INICIAR SESIÓN
-   ========================================================= */
-
-/* Comprueba los datos introducidos por el usuario */
-function iniciarSesion(event) {
-
-    /* Evita que el formulario recargue la página */
-    event.preventDefault();
-
-    /* Obtiene el correo escrito */
-    const correo =
-        document
-            .getElementById("loginCorreo")
-            .value
-            .trim();
-
-    /* Obtiene la contraseña escrita */
-    const password =
-        document
-            .getElementById("loginPassword")
-            .value;
-
-    /* Obtiene el lugar donde aparecerán los errores */
-    const mensaje =
-        document.getElementById("mensajeLogin");
-
-
-    /* Comprueba las credenciales del administrador */
-    if (
-        correo === "admin@barberiaisa.com" &&
-        password === "admin123"
-    ) {
-
-        /* Guarda que la sesión pertenece al administrador */
-        sesionActual = "admin";
-
-        /* Oculta el login */
-        document
-            .getElementById("login")
-            .style.display = "none";
-
-        /* Muestra toda la aplicación */
-        document
-            .getElementById("aplicacion")
-            .style.display = "block";
-
-        /* Carga los datos del administrador */
-        actualizarAdministrador();
-
-        /* Muestra el panel administrativo */
-        mostrarPagina("admin");
-
-        /* Limpia el formulario */
-        document
-            .getElementById("loginForm")
-            .reset();
-
-        /* Termina la función */
-        return;
-    }
-
-
-    /* Comprueba las credenciales del usuario */
-    if (
-        correo === "usuario@barberiaisa.com" &&
-        password === "1234"
-    ) {
-
-        /* Guarda que la sesión pertenece a un usuario */
-        sesionActual = "usuario";
-
-        /* Oculta el login */
-        document
-            .getElementById("login")
-            .style.display = "none";
-
-        /* Muestra la aplicación */
-        document
-            .getElementById("aplicacion")
-            .style.display = "block";
-
-        /* Muestra el inicio */
-        mostrarPagina("inicio");
-
-        /* Carga los barberos */
-        mostrarBarberosUsuario();
-
-        /* Limpia el formulario */
-        document
-            .getElementById("loginForm")
-            .reset();
-
-        /* Termina la función */
-        return;
-    }
-
-
-    /* Muestra un mensaje si las credenciales son incorrectas */
-    mensaje.textContent =
-        "El correo o la contraseña son incorrectos.";
-
-}
-
-
-/* =========================================================
-   CERRAR SESIÓN
-   ========================================================= */
-
-/* Cierra la sesión actual */
-function cerrarSesion() {
-
-    /* Elimina la sesión */
-    sesionActual = null;
-
-    /* Oculta la aplicación */
-    document
-        .getElementById("aplicacion")
-        .style.display = "none";
-
-    /* Muestra nuevamente el login */
-    document
-        .getElementById("login")
-        .style.display = "flex";
-
-    /* Limpia el mensaje de error */
-    document
-        .getElementById("mensajeLogin")
-        .textContent = "";
-
-    /* Limpia los campos */
-    document
-        .getElementById("loginForm")
-        .reset();
-
-}
-
-
-/* =========================================================
-   CAMBIAR DE PÁGINA
-   ========================================================= */
-
-/* Cambia entre las diferentes secciones */
-function mostrarPagina(pagina, boton) {
-
-    /* Comprueba si se intenta entrar al panel administrativo */
-    if (
-        pagina === "admin" &&
-        sesionActual !== "admin"
-    ) {
-
-        /* Bloquea el acceso */
-        return;
-
-    }
-
-
-    /* Oculta todas las secciones */
-    document
-        .querySelectorAll(".pagina")
-        .forEach(function (seccion) {
-
-            seccion.classList.remove("activa");
-
-        });
-
-
-    /* Busca la sección solicitada */
-    const destino =
-        document.getElementById(pagina);
-
-
-    /* Comprueba que exista */
-    if (destino) {
-
-        /* Muestra la sección */
-        destino.classList.add("activa");
-
-    }
-
-
-    /* Quita la clase activa de los botones */
-    document
-        .querySelectorAll(".nav-btn")
-        .forEach(function (elemento) {
-
-            elemento.classList.remove("activo");
-
-        });
-
-
-    /* Marca el botón seleccionado */
-    if (boton) {
-
-        boton.classList.add("activo");
-
-    }
-
-
-    /* Actualiza la pantalla */
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-
-    /* Cierra el menú móvil */
-    document
-        .getElementById("menu")
-        .classList.remove("mostrar");
-
-}
-
-
-/* =========================================================
-   MENÚ PARA CELULAR
-   ========================================================= */
-
-/* Abre o cierra el menú */
-function alternarMenu() {
-
-    document
-        .getElementById("menu")
-        .classList.toggle("mostrar");
-
-}
-
-
-/* =========================================================
-   SELECCIONAR SERVICIO
-   ========================================================= */
-
-/* Guarda el servicio que eligió el usuario */
-function seleccionarServicio(nombre, precio) {
-
-    /* Guarda el nombre */
-    servicioSeleccionado = nombre;
-
-    /* Guarda el precio */
-    precioSeleccionado = precio;
-
-    /* Actualiza el resumen */
-    document
-        .getElementById("resumenServicio")
-        .textContent = nombre;
-
-    /* Actualiza el precio */
-    document
-        .getElementById("resumenPrecio")
-        .textContent = precio;
-
-    /* Muestra la sección de barberos */
-    mostrarPagina("barberos");
-
-}
-
-
-/* =========================================================
-   MOSTRAR BARBEROS
-   ========================================================= */
-
-/* Crea las tarjetas de los barberos */
-function mostrarBarberosUsuario() {
-
-    /* Busca el contenedor */
-    const contenedor =
-        document.getElementById(
-            "barberosUsuario"
-        );
-
-
-    /* Limpia el contenido */
-    contenedor.innerHTML = "";
-
-
-    /* Recorre todos los barberos */
-    barberos.forEach(function (nombre) {
-
-        /* Crea una tarjeta */
-        const tarjeta =
-            document.createElement("article");
-
-        /* Agrega la clase */
-        tarjeta.className =
-            "barbero-card";
-
-
-        /* Crea el contenido */
-        tarjeta.innerHTML = `
-
-            <div class="barbero-foto">
-                ${nombre}
-            </div>
-
-            <h3>${nombre}</h3>
-
-            <p>
-                Barbero profesional de Barbería Isa.
-            </p>
-
-            <button>
-                Elegir barbero
-            </button>
-
-        `;
-
-
-        /* Busca el botón */
-        const boton =
-            tarjeta.querySelector("button");
-
-
-        /* Conecta el botón */
-        boton.addEventListener(
-            "click",
-            function () {
-
-                seleccionarBarbero(nombre);
-
-            }
-        );
-
-
-        /* Agrega la tarjeta */
-        contenedor.appendChild(tarjeta);
-
-    });
-
-}
-
-
-/* =========================================================
-   SELECCIONAR BARBERO
-   ========================================================= */
-
-/* Guarda el barbero elegido */
-function seleccionarBarbero(nombre) {
-
-    /* Guarda el nombre */
-    barberoSeleccionado = nombre;
-
-    /* Actualiza el resumen */
-    document
-        .getElementById("resumenBarbero")
-        .textContent = nombre;
-
-    /* Muestra la reserva */
-    mostrarPagina("reservar");
-
-}
-
-
-/* =========================================================
-   FECHA MÍNIMA
-   ========================================================= */
-
-/* Evita seleccionar fechas anteriores a hoy */
-function establecerFechaMinima() {
-
-    /* Obtiene el campo de fecha */
-    const campo =
-        document.getElementById("fechaCita");
-
-    /* Obtiene la fecha actual */
-    const hoy =
-        new Date();
-
-    /* Convierte la fecha al formato correcto */
-    const fecha =
-        hoy.toISOString().split("T")[0];
-
-    /* Establece la fecha mínima */
-    campo.min = fecha;
-
-}
-
-
-/* =========================================================
-   CREAR CITA
-   ========================================================= */
-
-/* Guarda una nueva cita */
-function crearCita(event) {
-
-    /* Evita recargar la página */
-    event.preventDefault();
-
-
-    /* Comprueba que exista servicio */
-    if (!servicioSeleccionado) {
-
-        alert(
-            "Primero selecciona un servicio."
-        );
-
-        return;
-
-    }
-
-
-    /* Comprueba que exista barbero */
-    if (!barberoSeleccionado) {
-
-        alert(
-            "Primero selecciona un barbero."
-        );
-
-        return;
-
-    }
-
-
-    /* Obtiene la fecha */
-    const fecha =
-        document
-            .getElementById("fechaCita")
-            .value;
-
-
-    /* Obtiene la hora */
-    const hora =
-        document
-            .getElementById("horaCita")
-            .value;
-
-
-    /* Crea el objeto de la cita */
-    const nuevaCita = {
-
-        id: Date.now(),
-
-        cliente: "Usuario",
-
-        servicio: servicioSeleccionado,
-
-        precio: precioSeleccionado,
-
-        barbero: barberoSeleccionado,
-
-        fecha: fecha,
-
-        hora: hora,
-
-        estado: "Pendiente"
-
+    /* ============================================================
+       ELEMENTOS PRINCIPALES
+       ============================================================ */
+
+    const login = document.getElementById("login");
+    const loginForm = document.getElementById("loginForm");
+    const loginCorreo = document.getElementById("loginCorreo");
+    const loginPassword = document.getElementById("loginPassword");
+    const mensajeLogin = document.getElementById("mensajeLogin");
+
+    const aplicacion = document.getElementById("aplicacion");
+    const interfazUsuario = document.getElementById("interfazUsuario");
+    const interfazAdmin = document.getElementById("interfazAdmin");
+
+    const cerrarSesion = document.getElementById("cerrarSesion");
+    const cerrarSesionAdmin = document.getElementById("cerrarSesionAdmin");
+
+    /* ============================================================
+       CREDENCIALES DE DEMOSTRACIÓN
+       ============================================================ */
+
+    const USUARIO = {
+        correo: "usuario@barberiaisa.com",
+        password: "1234"
     };
 
+    const ADMIN = {
+        correo: "admin@barberiaisa.com",
+        password: "admin123"
+    };
 
-    /* Agrega la cita al arreglo */
-    citas.push(nuevaCita);
+    /* ============================================================
+       DATOS INICIALES
+       ============================================================ */
 
+    let servicios = JSON.parse(
+        localStorage.getItem("barberiaServicios")
+    ) || [
+        {
+            id: Date.now(),
+            nombre: "Corte tradicional",
+            categoria: "Corte",
+            precio: 150,
+            descripcion: "Corte clásico, moderno y personalizado."
+        },
+        {
+            id: Date.now() + 1,
+            nombre: "Corte + barba",
+            categoria: "Combo",
+            precio: 220,
+            descripcion: "Corte de cabello acompañado de arreglo de barba."
+        },
+        {
+            id: Date.now() + 2,
+            nombre: "Arreglo de barba",
+            categoria: "Barba",
+            precio: 100,
+            descripcion: "Perfilado y cuidado de barba profesional."
+        }
+    ];
 
-    /* Actualiza la lista del usuario */
-    actualizarCitasUsuario();
+    let barberos = JSON.parse(
+        localStorage.getItem("barberiaBarberos")
+    ) || [
+        {
+            id: Date.now(),
+            nombre: "Carlos",
+            especialidad: "Cortes clásicos"
+        },
+        {
+            id: Date.now() + 1,
+            nombre: "Luis",
+            especialidad: "Fade y barba"
+        },
+        {
+            id: Date.now() + 2,
+            nombre: "Miguel",
+            especialidad: "Cortes modernos"
+        }
+    ];
 
+    let citas = JSON.parse(
+        localStorage.getItem("barberiaCitas")
+    ) || [];
 
-    /* Actualiza la información del administrador */
-    actualizarAdministrador();
+    let inventario = JSON.parse(
+        localStorage.getItem("barberiaInventario")
+    ) || [
+        {
+            id: Date.now(),
+            nombre: "Cera para cabello",
+            cantidad: 10
+        },
+        {
+            id: Date.now() + 1,
+            nombre: "Shampoo",
+            cantidad: 15
+        }
+    ];
 
+    let usuarioActual = null;
 
-    /* Limpia el formulario */
-    document
-        .getElementById("reservaForm")
-        .reset();
+    let servicioSeleccionado = null;
+    let precioSeleccionado = 0;
+    let barberoSeleccionado = null;
 
+    let fechaCalendario = new Date();
 
-    /* Muestra las citas */
-    mostrarPagina("misCitas");
+    /* ============================================================
+       GUARDAR DATOS
+       ============================================================ */
 
+    function guardarDatos() {
 
-    /* Reinicia los datos seleccionados */
-    servicioSeleccionado = "";
-
-    precioSeleccionado = 0;
-
-    barberoSeleccionado = "";
-
-
-    /* Muestra confirmación */
-    alert(
-        "La cita fue registrada correctamente."
-    );
-
-}
-
-
-/* =========================================================
-   MOSTRAR CITAS DEL USUARIO
-   ========================================================= */
-
-/* Actualiza las citas que ve el cliente */
-function actualizarCitasUsuario() {
-
-    /* Busca el contenedor */
-    const contenedor =
-        document.getElementById(
-            "listaCitasUsuario"
+        localStorage.setItem(
+            "barberiaServicios",
+            JSON.stringify(servicios)
         );
 
-
-    /* Comprueba si no hay citas */
-    if (citas.length === 0) {
-
-        contenedor.innerHTML = `
-            <div class="cita-card">
-                <div>
-                    <h3>
-                        No tienes citas registradas.
-                    </h3>
-                    <p>
-                        Puedes reservar una desde Servicios.
-                    </p>
-                </div>
-            </div>
-        `;
-
-        return;
-    }
-
-
-    /* Genera todas las citas */
-    contenedor.innerHTML =
-        citas.map(function (cita) {
-
-            return `
-
-                <div class="cita-card">
-
-                    <div>
-
-                        <h3>
-                            ${cita.servicio}
-                        </h3>
-
-                        <p>
-                            Fecha: ${cita.fecha}
-                        </p>
-
-                        <p>
-                            Hora: ${cita.hora}
-                        </p>
-
-                        <p>
-                            Barbero: ${cita.barbero}
-                        </p>
-
-                        <strong>
-                            $${cita.precio} MXN
-                        </strong>
-
-                    </div>
-
-                    <span class="estado">
-                        ${cita.estado}
-                    </span>
-
-                </div>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   ADMINISTRADOR
-   ========================================================= */
-
-/* Actualiza todo el panel */
-function actualizarAdministrador() {
-
-    /* Actualiza el número de citas */
-    document
-        .getElementById("totalCitas")
-        .textContent = citas.length;
-
-
-    /* Actualiza el número de barberos */
-    document
-        .getElementById("totalBarberos")
-        .textContent = barberos.length;
-
-
-    /* Actualiza productos */
-    document
-        .getElementById("totalProductos")
-        .textContent = inventario.length;
-
-
-    /* Actualiza la tabla */
-    mostrarTablaCitas();
-
-
-    /* Actualiza inventario */
-    mostrarInventario();
-
-
-    /* Actualiza barberos */
-    mostrarBarberosAdmin();
-
-}
-
-
-/* =========================================================
-   TABLA DE CITAS
-   ========================================================= */
-
-/* Crea la tabla de citas para el administrador */
-function mostrarTablaCitas() {
-
-    /* Busca el contenedor */
-    const contenedor =
-        document.getElementById(
-            "tablaCitas"
+        localStorage.setItem(
+            "barberiaBarberos",
+            JSON.stringify(barberos)
         );
 
+        localStorage.setItem(
+            "barberiaCitas",
+            JSON.stringify(citas)
+        );
 
-    /* Comprueba si no existen citas */
-    if (citas.length === 0) {
-
-        contenedor.innerHTML =
-            "<p>No hay citas registradas.</p>";
-
-        return;
-
+        localStorage.setItem(
+            "barberiaInventario",
+            JSON.stringify(inventario)
+        );
     }
 
+    /* ============================================================
+       OCULTAR TODAS LAS INTERFACES AL INICIAR
+       ============================================================ */
 
-    /* Crea el inicio de la tabla */
-    let tabla = `
+    if (login) {
+        login.style.display = "flex";
+    }
 
-        <table class="admin-table">
+    if (aplicacion) {
+        aplicacion.style.display = "none";
+    }
 
-            <thead>
+    if (interfazUsuario) {
+        interfazUsuario.style.display = "none";
+    }
 
-                <tr>
+    if (interfazAdmin) {
+        interfazAdmin.style.display = "none";
+    }
 
-                    <th>Cliente</th>
-                    <th>Servicio</th>
-                    <th>Barbero</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+    /* ============================================================
+       INICIAR SESIÓN
+       ============================================================ */
 
-                </tr>
+    if (loginForm) {
 
-            </thead>
+        loginForm.addEventListener("submit", function (event) {
 
-            <tbody>
+            event.preventDefault();
 
-    `;
+            const correo = loginCorreo.value.trim().toLowerCase();
+            const password = loginPassword.value.trim();
 
+            /* Login de administrador */
+            if (
+                correo === ADMIN.correo &&
+                password === ADMIN.password
+            ) {
 
-    /* Recorre las citas */
-    citas.forEach(function (cita) {
+                usuarioActual = {
+                    tipo: "admin",
+                    correo: correo
+                };
 
-        /* Agrega una fila */
-        tabla += `
+                entrarComoAdmin();
 
-            <tr>
+                return;
+            }
 
-                <td>
-                    ${cita.cliente}
-                </td>
+            /* Login de usuario */
+            if (
+                correo === USUARIO.correo &&
+                password === USUARIO.password
+            ) {
 
-                <td>
-                    ${cita.servicio}
-                </td>
+                usuarioActual = {
+                    tipo: "usuario",
+                    correo: correo
+                };
 
-                <td>
-                    ${cita.barbero}
-                </td>
+                entrarComoUsuario();
 
-                <td>
-                    ${cita.fecha}
-                </td>
+                return;
+            }
 
-                <td>
-                    ${cita.hora}
-                </td>
+            /* Datos incorrectos */
+            if (mensajeLogin) {
 
-                <td>
-                    ${cita.estado}
-                </td>
+                mensajeLogin.textContent =
+                    "Correo o contraseña incorrectos.";
 
-                <td>
+                mensajeLogin.style.color = "#c0392b";
+            }
 
-                    <button
-                        class="admin-action confirmar"
-                        onclick="cambiarEstado(${cita.id}, 'Confirmada')">
-                        Confirmar
-                    </button>
+        });
+    }
 
-                    <button
-                        class="admin-action cancelar"
-                        onclick="cambiarEstado(${cita.id}, 'Cancelada')">
-                        Cancelar
-                    </button>
+    /* ============================================================
+       ENTRAR COMO USUARIO
+       ============================================================ */
 
-                </td>
+    function entrarComoUsuario() {
 
-            </tr>
+        if (login) {
+            login.style.display = "none";
+        }
 
-        `;
+        if (aplicacion) {
+            aplicacion.style.display = "block";
+        }
 
-    });
+        if (interfazAdmin) {
+            interfazAdmin.style.display = "none";
+        }
 
+        if (interfazUsuario) {
+            interfazUsuario.style.display = "block";
+        }
 
-    /* Termina la tabla */
-    tabla += `
-            </tbody>
-        </table>
-    `;
+        mostrarPaginaUsuario("inicio");
 
+        renderizarServicios();
 
-    /* Inserta la tabla */
-    contenedor.innerHTML = tabla;
+        renderizarBarberos();
 
-}
+        renderizarCitasUsuario();
+    }
 
+    /* ============================================================
+       ENTRAR COMO ADMINISTRADOR
+       ============================================================ */
 
-/* =========================================================
-   CAMBIAR ESTADO DE UNA CITA
-   ========================================================= */
+    function entrarComoAdmin() {
 
-/* Modifica el estado de una cita */
-function cambiarEstado(id, estado) {
+        if (login) {
+            login.style.display = "none";
+        }
 
-    /* Busca la cita correspondiente */
-    const cita =
-        citas.find(function (elemento) {
+        if (aplicacion) {
+            aplicacion.style.display = "block";
+        }
 
-            return elemento.id === id;
+        if (interfazUsuario) {
+            interfazUsuario.style.display = "none";
+        }
+
+        if (interfazAdmin) {
+            interfazAdmin.style.display = "block";
+        }
+
+        mostrarPaginaAdmin("admin");
+
+        renderizarServiciosAdmin();
+
+        renderizarBarberosAdmin();
+
+        renderizarInventario();
+
+        renderizarCitasAdmin();
+
+        renderizarCalendario();
+
+        actualizarEstadisticas();
+    }
+
+    /* ============================================================
+       CERRAR SESIÓN USUARIO
+       ============================================================ */
+
+    if (cerrarSesion) {
+
+        cerrarSesion.addEventListener("click", function () {
+
+            usuarioActual = null;
+
+            if (aplicacion) {
+                aplicacion.style.display = "none";
+            }
+
+            if (interfazUsuario) {
+                interfazUsuario.style.display = "none";
+            }
+
+            if (interfazAdmin) {
+                interfazAdmin.style.display = "none";
+            }
+
+            if (login) {
+                login.style.display = "flex";
+            }
+
+            loginForm.reset();
+
+            if (mensajeLogin) {
+                mensajeLogin.textContent = "";
+            }
+
+        });
+    }
+
+    /* ============================================================
+       CERRAR SESIÓN ADMIN
+       ============================================================ */
+
+    if (cerrarSesionAdmin) {
+
+        cerrarSesionAdmin.addEventListener("click", function () {
+
+            usuarioActual = null;
+
+            if (aplicacion) {
+                aplicacion.style.display = "none";
+            }
+
+            if (interfazUsuario) {
+                interfazUsuario.style.display = "none";
+            }
+
+            if (interfazAdmin) {
+                interfazAdmin.style.display = "none";
+            }
+
+            if (login) {
+                login.style.display = "flex";
+            }
+
+            loginForm.reset();
+
+            if (mensajeLogin) {
+                mensajeLogin.textContent = "";
+            }
+
+        });
+    }
+
+    /* ============================================================
+       NAVEGACIÓN DEL USUARIO
+       ============================================================ */
+
+    const botonesUsuario =
+        document.querySelectorAll(
+            "#interfazUsuario [data-pagina]"
+        );
+
+    botonesUsuario.forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const pagina = boton.dataset.pagina;
+
+            mostrarPaginaUsuario(pagina);
 
         });
 
+    });
 
-    /* Comprueba que exista */
-    if (cita) {
+    /* ============================================================
+       NAVEGACIÓN DEL ADMIN
+       ============================================================ */
 
-        /* Cambia el estado */
-        cita.estado = estado;
+    const botonesAdmin =
+        document.querySelectorAll(
+            "#interfazAdmin [data-pagina]"
+        );
+
+    botonesAdmin.forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const pagina = boton.dataset.pagina;
+
+            mostrarPaginaAdmin(pagina);
+
+        });
+
+    });
+
+    /* ============================================================
+       MOSTRAR PÁGINA DEL USUARIO
+       ============================================================ */
+
+    function mostrarPaginaUsuario(nombrePagina) {
+
+        if (!interfazUsuario) {
+            return;
+        }
+
+        const paginas =
+            interfazUsuario.querySelectorAll(".pagina");
+
+        paginas.forEach(function (pagina) {
+
+            pagina.classList.remove("activa");
+
+        });
+
+        const pagina =
+            document.getElementById(nombrePagina);
+
+        if (pagina) {
+
+            pagina.classList.add("activa");
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
 
     }
 
+    /* ============================================================
+       MOSTRAR PÁGINA ADMIN
+       ============================================================ */
 
-    /* Actualiza la vista del usuario */
-    actualizarCitasUsuario();
+    function mostrarPaginaAdmin(nombrePagina) {
 
+        if (!interfazAdmin) {
+            return;
+        }
 
-    /* Actualiza el administrador */
-    actualizarAdministrador();
+        const paginas =
+            interfazAdmin.querySelectorAll(".pagina");
 
-}
+        paginas.forEach(function (pagina) {
 
+            pagina.classList.remove("activa");
 
-/* =========================================================
-   INVENTARIO
-   ========================================================= */
+        });
 
-/* Muestra los productos */
-function mostrarInventario() {
+        const pagina =
+            document.getElementById(nombrePagina);
 
-    /* Busca el contenedor */
-    const contenedor =
-        document.getElementById(
-            "inventario"
-        );
+        if (pagina) {
 
+            pagina.classList.add("activa");
 
-    /* Crea cada producto */
-    contenedor.innerHTML =
-        inventario.map(function (producto, index) {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
 
-            return `
+        }
 
-                <div class="producto">
+        if (nombrePagina === "adminCitas") {
+            renderizarCitasAdmin();
+            renderizarCalendario();
+        }
 
-                    <div>
+        if (nombrePagina === "adminServicios") {
+            renderizarServiciosAdmin();
+        }
+
+        if (nombrePagina === "adminBarberos") {
+            renderizarBarberosAdmin();
+        }
+
+        if (nombrePagina === "adminInventario") {
+            renderizarInventario();
+        }
+
+    }
+
+    /* ============================================================
+       SERVICIOS PARA EL USUARIO
+       ============================================================ */
+
+    function renderizarServicios() {
+
+        const contenedor =
+            document.getElementById("serviciosUsuario");
+
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        servicios.forEach(function (servicio) {
+
+            const tarjeta =
+                document.createElement("article");
+
+            tarjeta.className = "servicio-card";
+
+            tarjeta.innerHTML = `
+                <div class="servicio-info">
+
+                    <p class="categoria">
+                        ${escapeHTML(servicio.categoria)}
+                    </p>
+
+                    <h3>
+                        ${escapeHTML(servicio.nombre)}
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(servicio.descripcion)}
+                    </p>
+
+                    <div class="servicio-bottom">
 
                         <strong>
-                            ${producto.nombre}
+                            $${Number(servicio.precio).toFixed(0)} MXN
                         </strong>
 
-                        <p>
-                            Cantidad:
-                            ${producto.cantidad}
-                        </p>
-
-                    </div>
-
-                    <div>
-
-                        $${producto.precio}
-
                         <button
-                            class="admin-action cancelar"
-                            onclick="eliminarProducto(${index})">
-
-                            Eliminar
-
+                            class="elegir-servicio"
+                            type="button"
+                            data-id="${servicio.id}">
+                            Elegir
                         </button>
 
                     </div>
 
                 </div>
-
             `;
 
-        }).join("");
+            contenedor.appendChild(tarjeta);
 
-}
+        });
 
+        contenedor
+            .querySelectorAll(".elegir-servicio")
+            .forEach(function (boton) {
 
-/* =========================================================
-   AGREGAR PRODUCTO
-   ========================================================= */
+                boton.addEventListener("click", function () {
 
-/* Permite al administrador agregar un producto */
-function agregarProducto() {
+                    const id =
+                        Number(boton.dataset.id);
 
-    /* Solicita el nombre */
-    const nombre =
-        prompt("Nombre del producto:");
+                    seleccionarServicio(id);
 
+                    mostrarPaginaUsuario("reservar");
 
-    /* Detiene la función si se cancela */
-    if (!nombre) {
-        return;
-    }
+                });
 
-
-    /* Solicita cantidad */
-    const cantidad =
-        Number(
-            prompt("Cantidad disponible:")
-        );
-
-
-    /* Solicita precio */
-    const precio =
-        Number(
-            prompt("Precio:")
-        );
-
-
-    /* Agrega el producto */
-    inventario.push({
-
-        nombre: nombre,
-
-        cantidad: cantidad,
-
-        precio: precio
-
-    });
-
-
-    /* Actualiza el administrador */
-    actualizarAdministrador();
-
-}
-
-
-/* =========================================================
-   ELIMINAR PRODUCTO
-   ========================================================= */
-
-/* Elimina un producto del inventario */
-function eliminarProducto(index) {
-
-    /* Solicita confirmación */
-    const confirmar =
-        confirm(
-            "¿Deseas eliminar este producto?"
-        );
-
-
-    /* Comprueba la respuesta */
-    if (confirmar) {
-
-        /* Elimina el producto */
-        inventario.splice(index, 1);
-
-        /* Actualiza la pantalla */
-        actualizarAdministrador();
+            });
 
     }
 
-}
+    /* ============================================================
+       SELECCIONAR SERVICIO
+       ============================================================ */
 
+    function seleccionarServicio(id) {
 
-/* =========================================================
-   BARBEROS DEL ADMINISTRADOR
-   ========================================================= */
+        const servicio =
+            servicios.find(function (item) {
 
-/* Muestra los barberos en administración */
-function mostrarBarberosAdmin() {
+                return item.id === id;
 
-    /* Busca el contenedor */
-    const contenedor =
-        document.getElementById(
-            "listaBarberosAdmin"
+            });
+
+        if (!servicio) {
+            return;
+        }
+
+        servicioSeleccionado = servicio.nombre;
+
+        precioSeleccionado = servicio.precio;
+
+        const resumenServicio =
+            document.getElementById("resumenServicio");
+
+        const resumenPrecio =
+            document.getElementById("resumenPrecio");
+
+        if (resumenServicio) {
+
+            resumenServicio.textContent =
+                servicio.nombre;
+
+        }
+
+        if (resumenPrecio) {
+
+            resumenPrecio.textContent =
+                Number(servicio.precio).toFixed(0);
+
+        }
+
+    }
+
+    /* ============================================================
+       BARBEROS PARA USUARIO
+       ============================================================ */
+
+    function renderizarBarberos() {
+
+        const contenedor =
+            document.getElementById("barberosUsuario");
+
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        barberos.forEach(function (barbero) {
+
+            const tarjeta =
+                document.createElement("article");
+
+            tarjeta.className = "servicio-card";
+
+            tarjeta.innerHTML = `
+                <div class="servicio-info">
+
+                    <p class="categoria">
+                        BARBERO
+                    </p>
+
+                    <h3>
+                        ${escapeHTML(barbero.nombre)}
+                    </h3>
+
+                    <p>
+                        ${escapeHTML(barbero.especialidad)}
+                    </p>
+
+                    <div class="servicio-bottom">
+
+                        <button
+                            type="button"
+                            class="elegir-barbero"
+                            data-id="${barbero.id}">
+                            Elegir
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+            contenedor.appendChild(tarjeta);
+
+        });
+
+        contenedor
+            .querySelectorAll(".elegir-barbero")
+            .forEach(function (boton) {
+
+                boton.addEventListener("click", function () {
+
+                    const id =
+                        Number(boton.dataset.id);
+
+                    seleccionarBarbero(id);
+
+                    mostrarPaginaUsuario("reservar");
+
+                });
+
+            });
+
+    }
+
+    /* ============================================================
+       SELECCIONAR BARBERO
+       ============================================================ */
+
+    function seleccionarBarbero(id) {
+
+        const barbero =
+            barberos.find(function (item) {
+
+                return item.id === id;
+
+            });
+
+        if (!barbero) {
+            return;
+        }
+
+        barberoSeleccionado =
+            barbero.nombre;
+
+        const resumen =
+            document.getElementById("resumenBarbero");
+
+        if (resumen) {
+
+            resumen.textContent =
+                barbero.nombre;
+
+        }
+
+    }
+
+    /* ============================================================
+       RESERVAR CITA
+       ============================================================ */
+
+    const reservaForm =
+        document.getElementById("reservaForm");
+
+    if (reservaForm) {
+
+        reservaForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+                const fecha =
+                    document.getElementById("fechaCita");
+
+                const hora =
+                    document.getElementById("horaCita");
+
+                if (!servicioSeleccionado) {
+
+                    alert(
+                        "Primero selecciona un servicio."
+                    );
+
+                    return;
+                }
+
+                if (!barberoSeleccionado) {
+
+                    alert(
+                        "Primero selecciona un barbero."
+                    );
+
+                    return;
+                }
+
+                if (!fecha.value || !hora.value) {
+
+                    alert(
+                        "Selecciona fecha y hora."
+                    );
+
+                    return;
+                }
+
+                /* Evitar citas repetidas del mismo barbero */
+                const ocupada =
+                    citas.some(function (cita) {
+
+                        return (
+                            cita.fecha === fecha.value &&
+                            cita.hora === hora.value &&
+                            cita.barbero === barberoSeleccionado
+                        );
+
+                    });
+
+                if (ocupada) {
+
+                    alert(
+                        "Ese barbero ya tiene una cita en ese horario."
+                    );
+
+                    return;
+                }
+
+                const nuevaCita = {
+
+                    id: Date.now(),
+
+                    usuario:
+                        usuarioActual
+                            ? usuarioActual.correo
+                            : USUARIO.correo,
+
+                    servicio:
+                        servicioSeleccionado,
+
+                    precio:
+                        precioSeleccionado,
+
+                    barbero:
+                        barberoSeleccionado,
+
+                    fecha:
+                        fecha.value,
+
+                    hora:
+                        hora.value,
+
+                    estado:
+                        "Pendiente"
+
+                };
+
+                citas.push(nuevaCita);
+
+                guardarDatos();
+
+                alert(
+                    "Cita reservada correctamente."
+                );
+
+                reservaForm.reset();
+
+                servicioSeleccionado = null;
+                precioSeleccionado = 0;
+                barberoSeleccionado = null;
+
+                const resumenServicio =
+                    document.getElementById("resumenServicio");
+
+                const resumenPrecio =
+                    document.getElementById("resumenPrecio");
+
+                const resumenBarbero =
+                    document.getElementById("resumenBarbero");
+
+                if (resumenServicio) {
+                    resumenServicio.textContent =
+                        "No seleccionado";
+                }
+
+                if (resumenPrecio) {
+                    resumenPrecio.textContent =
+                        "0";
+                }
+
+                if (resumenBarbero) {
+                    resumenBarbero.textContent =
+                        "No seleccionado";
+                }
+
+                renderizarCitasUsuario();
+
+            }
         );
 
+    }
 
-    /* Crea las filas */
-    contenedor.innerHTML =
-        barberos.map(function (nombre, index) {
+    /* ============================================================
+       MIS CITAS DEL USUARIO
+       ============================================================ */
 
-            return `
+    function renderizarCitasUsuario() {
 
-                <div class="producto">
+        const contenedor =
+            document.getElementById("listaCitasUsuario");
 
-                    <strong>
-                        ${nombre}
-                    </strong>
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        const correo =
+            usuarioActual
+                ? usuarioActual.correo
+                : USUARIO.correo;
+
+        const misCitas =
+            citas.filter(function (cita) {
+
+                return cita.usuario === correo;
+
+            });
+
+        if (misCitas.length === 0) {
+
+            contenedor.innerHTML = `
+                <div class="admin-card">
+                    <h3>No tienes citas registradas.</h3>
+                    <p>
+                        Cuando reserves una cita aparecerá aquí.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        misCitas.forEach(function (cita) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className = "admin-card";
+
+            tarjeta.innerHTML = `
+                <h3>
+                    ${escapeHTML(cita.servicio)}
+                </h3>
+
+                <p>
+                    <strong>Barbero:</strong>
+                    ${escapeHTML(cita.barbero)}
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    ${escapeHTML(cita.fecha)}
+                </p>
+
+                <p>
+                    <strong>Hora:</strong>
+                    ${escapeHTML(cita.hora)}
+                </p>
+
+                <p>
+                    <strong>Precio:</strong>
+                    $${Number(cita.precio).toFixed(0)} MXN
+                </p>
+
+                <p>
+                    <strong>Estado:</strong>
+                    ${escapeHTML(cita.estado)}
+                </p>
+            `;
+
+            contenedor.appendChild(tarjeta);
+
+        });
+
+    }
+
+    /* ============================================================
+       ADMIN - AGREGAR SERVICIO
+       ============================================================ */
+
+    const agregarServicio =
+        document.getElementById("agregarServicio");
+
+    if (agregarServicio) {
+
+        agregarServicio.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+                const nombre =
+                    document.getElementById(
+                        "nombreServicio"
+                    ).value.trim();
+
+                const categoria =
+                    document.getElementById(
+                        "categoriaServicio"
+                    ).value.trim();
+
+                const precio =
+                    Number(
+                        document.getElementById(
+                            "precioServicio"
+                        ).value
+                    );
+
+                const descripcion =
+                    document.getElementById(
+                        "descripcionServicio"
+                    ).value.trim();
+
+                if (
+                    !nombre ||
+                    !categoria ||
+                    !precio ||
+                    !descripcion
+                ) {
+
+                    alert(
+                        "Completa todos los campos."
+                    );
+
+                    return;
+                }
+
+                servicios.push({
+
+                    id: Date.now(),
+
+                    nombre: nombre,
+
+                    categoria: categoria,
+
+                    precio: precio,
+
+                    descripcion: descripcion
+
+                });
+
+                guardarDatos();
+
+                agregarServicio.reset();
+
+                renderizarServiciosAdmin();
+
+                renderizarServicios();
+
+                actualizarEstadisticas();
+
+                alert(
+                    "Servicio agregado correctamente."
+                );
+
+            }
+        );
+
+    }
+
+    /* ============================================================
+       ADMIN - MOSTRAR SERVICIOS
+       ============================================================ */
+
+    function renderizarServiciosAdmin() {
+
+        const contenedor =
+            document.getElementById(
+                "listaServiciosAdmin"
+            );
+
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        servicios.forEach(function (servicio) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className = "admin-card";
+
+            tarjeta.innerHTML = `
+                <h3>
+                    ${escapeHTML(servicio.nombre)}
+                </h3>
+
+                <p>
+                    ${escapeHTML(servicio.descripcion)}
+                </p>
+
+                <p>
+                    Categoría:
+                    ${escapeHTML(servicio.categoria)}
+                </p>
+
+                <p>
+                    Precio actual:
+                    $${Number(servicio.precio).toFixed(0)} MXN
+                </p>
+
+                <div class="admin-actions">
+
+                    <input
+                        type="number"
+                        min="0"
+                        value="${servicio.precio}"
+                        id="precio-${servicio.id}">
 
                     <button
-                        class="admin-action cancelar"
-                        onclick="eliminarBarbero(${index})">
+                        type="button"
+                        class="admin-action guardar-precio"
+                        data-id="${servicio.id}">
+                        Cambiar precio
+                    </button>
 
+                    <button
+                        type="button"
+                        class="admin-action eliminar-servicio"
+                        data-id="${servicio.id}">
                         Eliminar
-
                     </button>
 
                 </div>
-
             `;
 
-        }).join("");
+            contenedor.appendChild(tarjeta);
 
-}
+        });
 
+        contenedor
+            .querySelectorAll(".guardar-precio")
+            .forEach(function (boton) {
 
-/* =========================================================
-   AGREGAR BARBERO
-   ========================================================= */
+                boton.addEventListener(
+                    "click",
+                    function () {
 
-/* Permite registrar un nuevo barbero */
-function agregarBarbero() {
+                        const id =
+                            Number(boton.dataset.id);
 
-    /* Solicita el nombre */
-    const nombre =
-        prompt("Nombre del nuevo barbero:");
+                        const input =
+                            document.getElementById(
+                                "precio-" + id
+                            );
 
+                        const nuevoPrecio =
+                            Number(input.value);
 
-    /* Comprueba que se haya escrito algo */
-    if (!nombre) {
-        return;
+                        if (
+                            isNaN(nuevoPrecio) ||
+                            nuevoPrecio < 0
+                        ) {
+
+                            alert(
+                                "Introduce un precio válido."
+                            );
+
+                            return;
+                        }
+
+                        const servicio =
+                            servicios.find(function (item) {
+
+                                return item.id === id;
+
+                            });
+
+                        if (servicio) {
+
+                            servicio.precio =
+                                nuevoPrecio;
+
+                            guardarDatos();
+
+                            renderizarServiciosAdmin();
+
+                            renderizarServicios();
+
+                            actualizarEstadisticas();
+
+                            alert(
+                                "Precio actualizado."
+                            );
+
+                        }
+
+                    }
+                );
+
+            });
+
+        contenedor
+            .querySelectorAll(".eliminar-servicio")
+            .forEach(function (boton) {
+
+                boton.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            Number(boton.dataset.id);
+
+                        const confirmar =
+                            confirm(
+                                "¿Deseas eliminar este servicio?"
+                            );
+
+                        if (!confirmar) {
+                            return;
+                        }
+
+                        servicios =
+                            servicios.filter(
+                                function (servicio) {
+
+                                    return servicio.id !== id;
+
+                                }
+                            );
+
+                        guardarDatos();
+
+                        renderizarServiciosAdmin();
+
+                        renderizarServicios();
+
+                        actualizarEstadisticas();
+
+                    }
+                );
+
+            });
+
     }
 
+    /* ============================================================
+       ADMIN - AGREGAR BARBERO
+       ============================================================ */
 
-    /* Agrega el barbero */
-    barberos.push(nombre);
+    const agregarBarbero =
+        document.getElementById("agregarBarbero");
 
+    if (agregarBarbero) {
 
-    /* Actualiza las vistas */
-    mostrarBarberosUsuario();
+        agregarBarbero.addEventListener(
+            "submit",
+            function (event) {
 
-    actualizarAdministrador();
+                event.preventDefault();
 
-}
+                const nombre =
+                    document.getElementById(
+                        "nombreBarbero"
+                    ).value.trim();
 
+                const especialidad =
+                    document.getElementById(
+                        "especialidadBarbero"
+                    ).value.trim();
 
-/* =========================================================
-   ELIMINAR BARBERO
-   ========================================================= */
+                if (!nombre || !especialidad) {
 
-/* Elimina un barbero */
-function eliminarBarbero(index) {
+                    alert(
+                        "Completa todos los campos."
+                    );
 
-    /* Solicita confirmación */
-    const confirmar =
-        confirm(
-            "¿Deseas eliminar este barbero?"
+                    return;
+                }
+
+                barberos.push({
+
+                    id: Date.now(),
+
+                    nombre: nombre,
+
+                    especialidad: especialidad
+
+                });
+
+                guardarDatos();
+
+                agregarBarbero.reset();
+
+                renderizarBarberosAdmin();
+
+                renderizarBarberos();
+
+                actualizarEstadisticas();
+
+                alert(
+                    "Barbero agregado correctamente."
+                );
+
+            }
         );
 
+    }
 
-    /* Comprueba la respuesta */
-    if (confirmar) {
+    /* ============================================================
+       ADMIN - MOSTRAR BARBEROS
+       ============================================================ */
 
-        /* Elimina el barbero */
-        barberos.splice(index, 1);
+    function renderizarBarberosAdmin() {
 
-        /* Actualiza las vistas */
-        mostrarBarberosUsuario();
+        const contenedor =
+            document.getElementById(
+                "listaBarberosAdmin"
+            );
 
-        actualizarAdministrador();
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        barberos.forEach(function (barbero) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className = "admin-card";
+
+            tarjeta.innerHTML = `
+                <h3>
+                    ${escapeHTML(barbero.nombre)}
+                </h3>
+
+                <p>
+                    Especialidad:
+                    ${escapeHTML(barbero.especialidad)}
+                </p>
+
+                <button
+                    type="button"
+                    class="admin-action eliminar-barbero"
+                    data-id="${barbero.id}">
+                    Eliminar
+                </button>
+            `;
+
+            contenedor.appendChild(tarjeta);
+
+        });
+
+        contenedor
+            .querySelectorAll(".eliminar-barbero")
+            .forEach(function (boton) {
+
+                boton.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            Number(boton.dataset.id);
+
+                        const confirmar =
+                            confirm(
+                                "¿Deseas eliminar este barbero?"
+                            );
+
+                        if (!confirmar) {
+                            return;
+                        }
+
+                        barberos =
+                            barberos.filter(
+                                function (barbero) {
+
+                                    return barbero.id !== id;
+
+                                }
+                            );
+
+                        guardarDatos();
+
+                        renderizarBarberosAdmin();
+
+                        renderizarBarberos();
+
+                        actualizarEstadisticas();
+
+                    }
+                );
+
+            });
 
     }
 
-}
+    /* ============================================================
+       ADMIN - INVENTARIO
+       ============================================================ */
 
+    const agregarProducto =
+        document.getElementById("agregarProducto");
 
-/* =========================================================
-   FORMULARIO DE CONTACTO
-   ========================================================= */
+    if (agregarProducto) {
 
-/* Procesa el formulario de contacto */
-function enviarMensaje(event) {
+        agregarProducto.addEventListener(
+            "submit",
+            function (event) {
 
-    /* Evita recargar la página */
-    event.preventDefault();
+                event.preventDefault();
 
+                const nombre =
+                    document.getElementById(
+                        "nombreProducto"
+                    ).value.trim();
 
-    /* Muestra confirmación */
-    alert(
-        "El mensaje fue enviado correctamente."
-    );
+                const cantidad =
+                    Number(
+                        document.getElementById(
+                            "cantidadProducto"
+                        ).value
+                    );
 
+                if (
+                    !nombre ||
+                    isNaN(cantidad) ||
+                    cantidad < 1
+                ) {
 
-    /* Limpia el formulario */
-    event.target.reset();
+                    alert(
+                        "Introduce datos válidos."
+                    );
 
-}
+                    return;
+                }
+
+                inventario.push({
+
+                    id: Date.now(),
+
+                    nombre: nombre,
+
+                    cantidad: cantidad
+
+                });
+
+                guardarDatos();
+
+                agregarProducto.reset();
+
+                renderizarInventario();
+
+                actualizarEstadisticas();
+
+                alert(
+                    "Producto agregado correctamente."
+                );
+
+            }
+        );
+
+    }
+
+    /* ============================================================
+       ADMIN - MOSTRAR INVENTARIO
+       ============================================================ */
+
+    function renderizarInventario() {
+
+        const contenedor =
+            document.getElementById("inventario");
+
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        inventario.forEach(function (producto) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className = "admin-card";
+
+            tarjeta.innerHTML = `
+                <h3>
+                    ${escapeHTML(producto.nombre)}
+                </h3>
+
+                <p>
+                    Cantidad:
+                    ${producto.cantidad}
+                </p>
+
+                <button
+                    type="button"
+                    class="admin-action eliminar-producto"
+                    data-id="${producto.id}">
+                    Eliminar
+                </button>
+            `;
+
+            contenedor.appendChild(tarjeta);
+
+        });
+
+        contenedor
+            .querySelectorAll(".eliminar-producto")
+            .forEach(function (boton) {
+
+                boton.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            Number(boton.dataset.id);
+
+                        inventario =
+                            inventario.filter(
+                                function (producto) {
+
+                                    return producto.id !== id;
+
+                                }
+                            );
+
+                        guardarDatos();
+
+                        renderizarInventario();
+
+                        actualizarEstadisticas();
+
+                    }
+                );
+
+            });
+
+    }
+
+    /* ============================================================
+       ADMIN - MOSTRAR CITAS
+       ============================================================ */
+
+    function renderizarCitasAdmin() {
+
+        const contenedor =
+            document.getElementById("tablaCitas");
+
+        if (!contenedor) {
+            return;
+        }
+
+        if (citas.length === 0) {
+
+            contenedor.innerHTML = `
+                <div class="admin-card">
+                    <p>No hay citas registradas.</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = `
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Usuario</th>
+                            <th>Servicio</th>
+                            <th>Barbero</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+        `;
+
+        citas.forEach(function (cita) {
+
+            html += `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(cita.usuario)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(cita.servicio)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(cita.barbero)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(cita.fecha)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(cita.hora)}
+                    </td>
+
+                    <td>
+                        $${Number(cita.precio).toFixed(0)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(cita.estado)}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="admin-action cancelar-cita"
+                            data-id="${cita.id}">
+                            Cancelar
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+
+        });
+
+        html += `
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+        contenedor.innerHTML = html;
+
+        contenedor
+            .querySelectorAll(".cancelar-cita")
+            .forEach(function (boton) {
+
+                boton.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            Number(boton.dataset.id);
+
+                        const confirmar =
+                            confirm(
+                                "¿Deseas cancelar esta cita?"
+                            );
+
+                        if (!confirmar) {
+                            return;
+                        }
+
+                        citas =
+                            citas.filter(
+                                function (cita) {
+
+                                    return cita.id !== id;
+
+                                }
+                            );
+
+                        guardarDatos();
+
+                        renderizarCitasAdmin();
+
+                        renderizarCalendario();
+
+                        actualizarEstadisticas();
+
+                    }
+                );
+
+            });
+
+    }
+
+    /* ============================================================
+       CALENDARIO ADMIN
+       ============================================================ */
+
+    function renderizarCalendario() {
+
+        const calendario =
+            document.getElementById(
+                "calendarioAdmin"
+            );
+
+        const titulo =
+            document.getElementById(
+                "tituloCalendario"
+            );
+
+        if (!calendario) {
+            return;
+        }
+
+        const año =
+            fechaCalendario.getFullYear();
+
+        const mes =
+            fechaCalendario.getMonth();
+
+        const nombresMeses = [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+        ];
+
+        if (titulo) {
+
+            titulo.textContent =
+                nombresMeses[mes] +
+                " " +
+                año;
+
+        }
+
+        const primerDia =
+            new Date(
+                año,
+                mes,
+                1
+            ).getDay();
+
+        const diasMes =
+            new Date(
+                año,
+                mes + 1,
+                0
+            ).getDate();
+
+        calendario.innerHTML = "";
+
+        const nombresDias = [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mié",
+            "Jue",
+            "Vie",
+            "Sáb"
+        ];
+
+        nombresDias.forEach(function (dia) {
+
+            const encabezado =
+                document.createElement("div");
+
+            encabezado.className =
+                "dia-calendario encabezado";
+
+            encabezado.textContent = dia;
+
+            calendario.appendChild(
+                encabezado
+            );
+
+        });
+
+        for (
+            let i = 0;
+            i < primerDia;
+            i++
+        ) {
+
+            const vacio =
+                document.createElement("div");
+
+            vacio.className =
+                "dia-calendario vacio";
+
+            calendario.appendChild(vacio);
+
+        }
+
+        for (
+            let dia = 1;
+            dia <= diasMes;
+            dia++
+        ) {
+
+            const celda =
+                document.createElement("div");
+
+            celda.className =
+                "dia-calendario";
+
+            celda.innerHTML = `
+                <strong>${dia}</strong>
+            `;
+
+            const mesNumero =
+                String(mes + 1).padStart(
+                    2,
+                    "0"
+                );
+
+            const diaNumero =
+                String(dia).padStart(
+                    2,
+                    "0"
+                );
+
+            const fecha =
+                `${año}-${mesNumero}-${diaNumero}`;
+
+            const citasDelDia =
+                citas.filter(
+                    function (cita) {
+
+                        return cita.fecha === fecha;
+
+                    }
+                );
+
+            if (citasDelDia.length > 0) {
+
+                celda.classList.add(
+                    "tiene-citas"
+                );
+
+                const cantidad =
+                    document.createElement("span");
+
+                cantidad.textContent =
+                    citasDelDia.length +
+                    " cita(s)";
+
+                celda.appendChild(
+                    cantidad
+                );
+
+            }
+
+            calendario.appendChild(celda);
+
+        }
+
+    }
+
+    /* ============================================================
+       CAMBIAR MES DEL CALENDARIO
+       ============================================================ */
+
+    const mesAnterior =
+        document.getElementById("mesAnterior");
+
+    const mesSiguiente =
+        document.getElementById("mesSiguiente");
+
+    if (mesAnterior) {
+
+        mesAnterior.addEventListener(
+            "click",
+            function () {
+
+                fechaCalendario.setMonth(
+                    fechaCalendario.getMonth() - 1
+                );
+
+                renderizarCalendario();
+
+            }
+        );
+
+    }
+
+    if (mesSiguiente) {
+
+        mesSiguiente.addEventListener(
+            "click",
+            function () {
+
+                fechaCalendario.setMonth(
+                    fechaCalendario.getMonth() + 1
+                );
+
+                renderizarCalendario();
+
+            }
+        );
+
+    }
+
+    /* ============================================================
+       ESTADÍSTICAS DEL ADMIN
+       ============================================================ */
+
+    function actualizarEstadisticas() {
+
+        const totalCitas =
+            document.getElementById("totalCitas");
+
+        const totalBarberos =
+            document.getElementById("totalBarberos");
+
+        const totalProductos =
+            document.getElementById("totalProductos");
+
+        const totalServicios =
+            document.getElementById("totalServicios");
+
+        if (totalCitas) {
+            totalCitas.textContent =
+                citas.length;
+        }
+
+        if (totalBarberos) {
+            totalBarberos.textContent =
+                barberos.length;
+        }
+
+        if (totalProductos) {
+            totalProductos.textContent =
+                inventario.length;
+        }
+
+        if (totalServicios) {
+            totalServicios.textContent =
+                servicios.length;
+        }
+
+    }
+
+    /* ============================================================
+       FORMULARIO DE CONTACTO
+       ============================================================ */
+
+    const contactoForm =
+        document.getElementById("contactoForm");
+
+    if (contactoForm) {
+
+        contactoForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+                alert(
+                    "Mensaje enviado correctamente."
+                );
+
+                contactoForm.reset();
+
+            }
+        );
+
+    }
+
+    /* ============================================================
+       BOTÓN DE MENÚ MÓVIL
+       ============================================================ */
+
+    const menuToggle =
+        document.getElementById("menuToggle");
+
+    const menu =
+        document.getElementById("menu");
+
+    if (menuToggle && menu) {
+
+        menuToggle.addEventListener(
+            "click",
+            function () {
+
+                menu.classList.toggle(
+                    "menu-abierto"
+                );
+
+            }
+        );
+
+    }
+
+    /* ============================================================
+       FECHA MÍNIMA PARA RESERVAR
+       ============================================================ */
+
+    const fechaCita =
+        document.getElementById("fechaCita");
+
+    if (fechaCita) {
+
+        const hoy =
+            new Date();
+
+        const año =
+            hoy.getFullYear();
+
+        const mes =
+            String(
+                hoy.getMonth() + 1
+            ).padStart(2, "0");
+
+        const dia =
+            String(
+                hoy.getDate()
+            ).padStart(2, "0");
+
+        fechaCita.min =
+            `${año}-${mes}-${dia}`;
+
+    }
+
+    /* ============================================================
+       FUNCIÓN DE SEGURIDAD PARA TEXTO
+       Evita insertar HTML no deseado desde formularios.
+       ============================================================ */
+
+    function escapeHTML(texto) {
+
+        return String(texto)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+    /* ============================================================
+       INICIALIZAR DATOS
+       ============================================================ */
+
+    guardarDatos();
+
+    renderizarServicios();
+    renderizarBarberos();
+    renderizarServiciosAdmin();
+    renderizarBarberosAdmin();
+    renderizarInventario();
+    renderizarCitasAdmin();
+    renderizarCalendario();
+    actualizarEstadisticas();
+
+});
