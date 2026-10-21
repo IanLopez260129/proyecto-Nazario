@@ -1,23 +1,5 @@
-/* ============================================================
-   BARBERÍA ISA - JAVASCRIPT
-   Este archivo controla:
-   - Inicio de sesión
-   - Separación Usuario / Administrador
-   - Servicios
-   - Barberos
-   - Reservaciones
-   - Citas
-   - Calendario
-   - Inventario
-   - Formularios
-   - Menús
-   ============================================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
-
-    /* ============================================================
-       ELEMENTOS PRINCIPALES
-       ============================================================ */
 
     const login = document.getElementById("login");
     const loginForm = document.getElementById("loginForm");
@@ -31,10 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const cerrarSesion = document.getElementById("cerrarSesion");
     const cerrarSesionAdmin = document.getElementById("cerrarSesionAdmin");
-
-    /* ============================================================
-       CREDENCIALES DE DEMOSTRACIÓN
-       ============================================================ */
 
     const USUARIO = {
         correo: "usuario@barberiaisa.com",
